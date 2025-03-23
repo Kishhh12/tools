@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Generator</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .result img, .result video {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+
+      textarea {
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Content Generator</h1>
+
+    <!-- Text to Image Section -->
+    <div class="section">
+      <h2>Text to AI Image</h2>
+      <textarea id="text-to-image-prompt" placeholder="Enter your prompt for image generation..."></textarea>
+      <button id="generate-image-btn">Generate Image</button>
+      <div id="image-result" class="result">
+        <!-- Generated image will appear here -->
+      </div>
+    </div>
+
+    <!-- Image to Video Section -->
+    <div class="section">
+      <h2>Image to Video</h2>
+      <input type="file" id="image-upload" accept="image/*">
+      <textarea id="image-to-video-prompt" placeholder="Enter your prompt for video generation..."></textarea>
+      <button id="generate-video-btn">Generate Video</button>
+      <div id="video-result" class="result">
+        <!-- Generated video will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API Endpoints (Replace with actual API URLs)
+    const TEXT_TO_IMAGE_API = "https://api.example.com/text-to-image";
+    const IMAGE_TO_VIDEO_API = "https://api.example.com/image-to-video";
+
+    // DOM Elements
+    const textToImagePrompt = document.getElementById("text-to-image-prompt");
+    const generateImageBtn = document.getElementById("generate-image-btn");
+    const imageResult = document.getElementById("image-result");
+
+    const imageUpload = document.getElementById("image-upload");
+    const imageToVideoPrompt = document.getElementById("image-to-video-prompt");
+    const generateVideoBtn = document.getElementById("generate-video-btn");
+    const videoResult = document.getElementById("video-result");
+
+    // Event Listeners
+    generateImageBtn.addEventListener("click", generateImage);
+    generateVideoBtn.addEventListener("click", generateVideo);
+
+    // Generate Image Function
+    async function generateImage() {
+      const prompt = textToImagePrompt.value.trim();
+      if (!prompt) {
+        alert("Please enter a prompt for image generation.");
+        return;
+      }
+
+      try {
+        const response = await fetch(TEXT_TO_IMAGE_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+        });
+
+        const data = await response.json();
+        if (data.imageUrl) {
+          imageResult.innerHTML = `<img src="${data.imageUrl}" alt="Generated Image">`;
+        } else {
+          alert("Failed to generate image. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+      }
+    }
+
+    // Generate Video Function
+    async function generateVideo() {
+      const prompt = imageToVideoPrompt.value.trim();
+      const file = imageUpload.files[0];
+      if (!file || !prompt) {
+        alert("Please upload an image and enter a prompt for video generation.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("prompt", prompt);
+
+      try {
+        const response = await fetch(IMAGE_TO_VIDEO_API, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        if (data.videoUrl) {
+          videoResult.innerHTML = `<video src="${data.videoUrl}" controls></video>`;
+        } else {
+          alert("Failed to generate video. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+      }
+    }
+  </script>
+</body>
+</html>
